@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.feng.mapper.DepartmentMapper">
+
+    <select id="getDeptById" resultType="com.feng.pojo.Department">
+        select * from tbl_department WHERE id=#{id}
+    </select>
+
+
+    <resultMap id="deptAndEmpListMap" type="com.feng.pojo.Department">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="deptCode" property="deptCode" />
+
+        <collection property="employeeList" ofType="com.feng.pojo.Employee">
+            <id property="id" column="eid" />
+            <result property="lastName" column="last_name"/>
+            <result property="gender" column="gender"/>
+            <result property="email" column="email"/>
+            <result property="deptId" column="dept_id"/>
+        </collection>
+    </resultMap>
+    <select id="getDeptAndEmpListById" resultMap="deptAndEmpListMap" >
+      SELECT td.id,td.deptCode,td.name, te.id eid, te.dept_id, te.email, te.gender, te.last_name FROM tbl_department td LEFT JOIN tbl_employee te ON td.id=te.dept_id 
+          WHERE td.id=#{id}
+    </select>
+
+</mapper>

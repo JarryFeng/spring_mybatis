@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.feng.mapper.EmployeeMapper">
+
+    <cache eviction="FIFO" flushInterval="3000000" size="100" readOnly="false"></cache>
+    <!--<cache type="org.mybatis.caches.ehcache.EhcacheCache" />-->
+
+    <resultMap id="resultMap" type="com.feng.pojo.Employee">
+        <result property="id" column="id" javaType="java.lang.Integer" />
+        <result property="lastName" column="last_name" javaType="java.lang.String" />
+        <result property="gender" column="gender" javaType="java.lang.Integer" />
+        <result property="email" column="email" javaType="java.lang.String" />
+    </resultMap>
+
+    <select id="getEmployeeById" resultType="com.feng.pojo.Employee" databaseId="mysql">
+        select * from tbl_employee where id = #{id}
+    </select>
+
+    <select id="getEmployeeById" resultType="com.feng.pojo.Employee" databaseId="oracle">
+        select * from tbl_employee where id = #{id}
+    </select>
+
+
+    <insert id="addEmployee" useGeneratedKeys="true" keyProperty="id" databaseId="mysql">
+        insert into tbl_employee(last_name, gender, email) values(#{lastName}, #{gender}, #{email})
+    </insert>
+
+    <update id="updateEmployee" databaseId="mysql">
+        update tbl_employee set last_name=#{lastName}, gender=#{gender}, email=#{email} where id=#{id}
+    </update>
+
+    <delete id="deleteEmployee" databaseId="mysql" parameterType="java.lang.String">
+        delete from tbl_employee where id =#{id}
+    </delete>
+
+    <select id="getEmpByCondition" resultType="com.feng.pojo.Employee">
+        <!-- select * from tbl_employee where id=#{arg0} and last_name =#{arg1}-->
+        select * from tbl_employee where id=#{param1} and last_name =#{param2[0].lastName}
+    </select>
+
+    <!-- 联合查询 -->
+
+    <resultMap id="unionMap" type="com.feng.pojo.Employee">
+        <id property="id" column="id"/>
+        <result column="last_name" property="lastName" />
+        <result column="gender" property="gender" />
+        <result column="email" property="email" />
+        <result column="dept_id" property="deptId" />
+        <association property="department" javaType="com.feng.pojo.Department">
+            <id column="did" property="id" />
+            <result column="name" property="name"/>
+            <result column="deptCode" property="deptCode" />
+        </association>
+        <!--<result column="name" property="department.name" />-->
+        <!--<result column="did" property="department.id" />-->
+    </resultMap>
+
+    <select id="unionQuery" resultMap="unionMap">
+      SELECT e.id, e.last_name, e.gender, e.email, e.dept_id, d.deptCode, d.name, d.id did
+      FROM tbl_employee e, tbl_department d WHERE e.dept_id=d.id and e.id = #{id}
+    </select>
+
+
+    <resultMap id="stepMap" type="com.feng.pojo.Employee">
+        <id property="id" column="id"/>
+        <result column="last_name" property="lastName" />
+        <result column="gender" property="gender" />
+        <result column="email" property="email" />
+        <result column="dept_id" property="deptId" />
+        <association property="department" select="com.feng.mapper.DepartmentMapper.getDeptById" column="dept_id">
+
+        </association>
+
+    </resultMap>
+    <!-- 通过多次查询获取到部门信息-->
+    <select id="getEmpByStep" resultMap="stepMap">
+        select * from tbl_employee where id=#{id}
+    </select>
+
+    <!-- where,trim, -->
+    <select id="getWhereCondition" resultType="com.feng.pojo.Employee">
+      SELECT * from tbl_employee
+
+          <trim prefix="where" prefixOverrides="and">
+              <if test="id != null and id != ''">
+                  and id = #{id}
+              </if>
+              <if test="lastName != null and lastName != ''">
+                  and last_name = #{lastName}
+              </if>
+              <if test="gender != null and gender != ''">
+                  and gender = #{gender}
+              </if>
+          </trim>
+
+    </select>
+
+    <!-- choose:当某个条件符合就用某个类似于if else -->
+    <select id="getChooseCondition" resultType="com.feng.pojo.Employee">
+        SELECT * from tbl_employee
+        <where>
+            <choose>
+                <when test="id != null and id != ''">
+                  id = #{id}
+                </when>
+                <when test="lastName != null and lastName != ''">
+                    and last_name = #{lastName}
+                </when>
+                <when test="gender != null and gender != ''">
+                    and gender = #{gender}
+                </when>
+            </choose>
+        </where>
+
+    </select>
+    
+    <!-- 动态更新语句 set -->
+    <update id="updateDynamic" parameterType="com.feng.pojo.Employee">
+        update tbl_employee
+        <set>
+            <trim suffixOverrides=",">
+                <if test="lastName != null and lastName != ''">
+                    last_name = #{lastName},
+                </if>
+                <if test="gender != null and gender != ''">
+                    gender = #{gender},
+                </if>
+                <if test="email != null and email != ''">
+                    email = #{email},
+                </if>
+            </trim>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!-- foreach -->
+    <update id="updateByIdList" parameterType="java.util.Map">
+        update tbl_employee set last_name=#{param2}
+        <where>
+            id in
+            <foreach collection="arg0" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+
+    <!-- insert into values-->
+    <insert id="addBatchEmployee" parameterType="com.feng.pojo.Employee">
+        INSERT  into tbl_employee (last_name, gender, email, dept_id) VALUES
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.lastName}, #{emp.gender}, #{emp.email}, #{emp.deptId})
+        </foreach>
+    </insert>
+</mapper>

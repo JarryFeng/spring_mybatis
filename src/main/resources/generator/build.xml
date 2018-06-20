@@ -1,0 +1,18 @@
+
+<!-- ant 生成 对象、mapper -->
+
+<project default="genfiles" basedir=".">
+    <property name="generated.source.dir" value="${basedir}"/>
+    <path id="ant.run.lib.path">
+        <pathelement location="D:\workspace\spring_mybatis\target\spring_mybatis\WEB-INF\lib/mybatis-generator-core-1.3.5.jar"/>
+    </path>
+    <target name="genfiles" description="Generate the files">
+        <taskdef name="mbgenerator" classname="org.mybatis.generator.ant.GeneratorAntTask"
+                 classpathref="ant.run.lib.path"/>
+        <mbgenerator overwrite="true" configfile="${basedir}/generatorConfig.xml" verbose="false">
+            <propertyset>
+                <propertyref name="generated.source.dir"/>
+            </propertyset>
+        </mbgenerator>
+    </target>
+</project>

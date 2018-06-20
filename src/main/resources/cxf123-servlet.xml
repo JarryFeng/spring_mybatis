@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        ">
+
+    <!-- 初始化cxf servlet -->
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <!-- 日志拦截器bean -->
+    <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+    <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+
+    <!-- rest服务-->
+    <jaxrs:server address="/cxf">
+        <jaxrs:serviceBeans>
+    　　　　<ref bean="testWebService" />
+    　　</jaxrs:serviceBeans>
+        <jaxrs:inInterceptors>
+            <ref bean="loggingInInterceptor"/>
+        </jaxrs:inInterceptors>
+        <jaxrs:outInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </jaxrs:outInterceptors>
+    </jaxrs:server>
+
+    <!-- soap服务 -->
+    <jaxws:server address="/cxf2">
+        <jaxws:serviceBean>
+            <ref bean="testWebService" />
+        </jaxws:serviceBean>
+        <jaxws:inInterceptors>
+            <ref bean="loggingInInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </jaxws:outInterceptors>
+    </jaxws:server>
+
+    <jaxws:endpoint id="testWebService2Bean" implementor="#testWebService2" address="/cxf3">
+        <jaxws:inInterceptors>
+            <ref bean="loggingInInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </jaxws:outInterceptors>
+    </jaxws:endpoint>
+
+</beans>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--
+        引入外部的properties文件
+        resource:引入类路径下的资源
+        url:引入网络路径或者磁盘路径下的资源
+    -->
+    <properties resource="properties/jdbc.properties"/>
+
+    <!--
+     mapUnderscoreToCamelCase 设置驼峰标识映射,例如：列字段last_name自动与实体类中的lastName进行映射
+     lazyLoadingEnabled 延迟加载,关联查询时,需要用到时在加载
+     aggressiveLazyLoading 侵入式加载
+     cacheEnabled 开启二级缓存
+     -->
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="logImpl" value="LOG4J" />
+        <setting name="lazyLoadingEnabled" value="true" />
+        <setting name="aggressiveLazyLoading" value="false" />
+        <setting name="cacheEnabled" value="true" />
+    </settings>
+
+
+    <!-- 别名设置
+    typeAlias：设置单个实体类的别名，默认类名小写
+    package：批量设置实体类的别名，默认类名小写
+    注：这两个属性不能共用
+    示例：
+    <select id="getEmployeeById" resultType="employee">
+        select * from tbl_employee where id = #{id};
+    </select>
+    -->
+    <typeAliases>
+        <typeAlias type="com.feng.pojo.Employee"/>
+    </typeAliases>
+
+
+    <!--
+    environments:可以配置多种环境,default:指定使用某种环境，可以达到快速切库的动作
+    environment：配置一个具体的环境信息;必须有以下两个标签，id代表当前环境的唯一标识
+        transactionManager：事务管理器
+            type:事务管理器类型;JDBC(JdbcTransactionFactory)|MANAGED(ManagedTransactionFactory)
+                自定义事务管理器：实现TransactionFactory接口
+        dataSource：数据源
+            type:数据源类型;JNDI(JndiDataSourceFactory)|连接池POOLED(PooledDataSourceFactory)|非连接池UNPOOLED(UnpooledDataSourceFactory)
+                自定义数据源：实现DataSourceFactory接口
+
+     -->
+    <environments default="dev_mysql">
+
+        <environment id="dev_mysql">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://101.132.40.203:3306/test"/>
+                <property name="username" value="root"/>
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
+
+        <environment id="dev_oracle">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="oracle.jdbc.OracleDriver"/>
+                <property name="url" value="jdbc:oracle:thin:@localhost:1521/test"/>
+                <property name="username" value="root"/>
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
+
+    </environments>
+
+    <!--
+        databaseIdProvider：支持多数据源厂商
+        type:DB_VENDOR(VendorDatabaseIdProvider)得到数据库厂商的标识（驱动Connection.getMetaData().getDatabaseProductName()）
+        mybatis就能够根据数据库厂商的不同标识来执行不同的sql语句
+        示例：
+         <select id="getEmployeeById" resultType="com.feng.pojo.Employee" databaseId="mysql">
+            select * from tbl_employee where id = #{id};
+        </select>
+
+        <select id="getEmployeeById" resultType="com.feng.pojo.Employee" databaseId="oracle">
+            select * from tbl_employee where id = #{id};
+        </select>
+    -->
+    <databaseIdProvider type="DB_VENDOR">
+        <!-- 为不同的数据库起别名 -->
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlServer"/>
+    </databaseIdProvider>
+
+    <!--
+        mappers：配置文件映射
+            mapper：引入某个映射配置文件
+            package:批量引入映射的配置文件
+    -->
+    <mappers>
+        <mapper resource="mapper/EmployeeMapper.xml"/>
+        <mapper resource="mapper/DepartmentMapper.xml" />
+    </mappers>
+</configuration>
