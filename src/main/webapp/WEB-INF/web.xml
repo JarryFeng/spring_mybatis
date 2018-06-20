@@ -56,4 +56,12 @@
         <url-pattern>/cxf/*</url-pattern>
     </servlet-mapping>
 
+    <!--
+    静态文件不拦截设置方法1
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.html</url-pattern>
+    </servlet-mapping>
+    -->
+
 </web-app>
