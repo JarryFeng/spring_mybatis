@@ -56,7 +56,4 @@
         <url-pattern>/cxf/*</url-pattern>
     </servlet-mapping>
 
-
-
-
 </web-app>
